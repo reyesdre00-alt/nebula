@@ -20,20 +20,26 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
 
-    - name: Clonar dependencias requeridas
+    - name: Clonar dependencias y parchear conflictos
       run: |
         mkdir -p deps host-tools
         git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
+
+        # Parche 1: Forzar ENABLE_OPT=0 en glslang para que no busque SPIR-V tools
+        sed -i 's/option(ENABLE_OPT "Enable SPIRV-Optimizer" ON)/option(ENABLE_OPT "Enable SPIRV-Optimizer" OFF)/g' deps/glslang-src/CMakeLists.txt || true
+        sed -i 's/set(ENABLE_OPT ON)/set(ENABLE_OPT OFF)/g' deps/glslang-src/CMakeLists.txt || true
+
+        # Parche 2: Evitar que libarchive intente escribir en la ruta prohibida /pkgconfig
+        find . -name "archive_deps.cmake" -exec sed -i 's|DESTINATION /pkgconfig|DESTINATION lib/pkgconfig|g' {} + || true
+        find . -name "*.cmake" -exec sed -i 's|DESTINATION /pkgconfig|DESTINATION lib/pkgconfig|g' {} + || true
 
     - name: Compilando binario
       run: |
         mkdir -p build
         cd build
-        # Desactivamos el optimizador de glslang y aislamos la instalación en un directorio local
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
-          -DENABLE_OPT=0 \
           -DCMAKE_INSTALL_PREFIX=$(pwd)/install
         ninja
 
