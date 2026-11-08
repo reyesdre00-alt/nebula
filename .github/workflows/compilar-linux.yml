@@ -15,7 +15,7 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Instalando herramientas y librerías gráficas en la nube
+    - name: Instalando herramientas y librerías gráficas completas
       run: |
         sudo apt-get update
         sudo apt-get install -y \
@@ -23,7 +23,8 @@ jobs:
           libglew-dev libarchive-dev \
           libx11-dev libxext-dev libxrandr-dev libxinerama-dev \
           libxcursor-dev libxi-dev libxxf86vm-dev libwayland-dev \
-          libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev
+          libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev \
+          libxss-dev
 
     - name: Clonar dependencias requeridas (Glslang y SDL3)
       run: |
@@ -39,10 +40,12 @@ jobs:
       run: |
         mkdir -p build
         cd build
+        # Añadimos -DSDL_X11_XSCRNSAVER=OFF para evitar que SDL reclame esa dependencia menor
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
           -DALLOW_EXTERNAL_SPIRV_TOOLS=ON \
+          -DSDL_X11_XSCRNSAVER=OFF \
           -DCMAKE_INSTALL_PREFIX=$(pwd)/install
         ninja
 
