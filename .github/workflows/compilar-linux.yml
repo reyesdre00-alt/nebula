@@ -36,7 +36,7 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake con captura de errores
+    - name: Configurar CMake con volcado completo de errores
       run: |
         mkdir -p build
         cd build
@@ -47,7 +47,8 @@ jobs:
           -DALLOW_EXTERNAL_SPIRV_TOOLS=OFF \
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
-          -DCMAKE_INSTALL_PREFIX=$(pwd)/install || (echo "CMAKE FALLÓ" && exit 1)
+          -DCMAKE_INSTALL_PREFIX=$(pwd)/install \
+          --log-level=WARNING || { echo "=== ERROR DE CMAKE DETECTADO ==="; exit 1; }
 
     - name: Compilar con Ninja
       run: |
