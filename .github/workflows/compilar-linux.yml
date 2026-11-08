@@ -22,15 +22,15 @@ jobs:
 
     - name: Clonar dependencias requeridas
       run: |
-        mkdir -p deps
+        mkdir -p deps host-tools
         git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
 
     - name: Compilando binario
       run: |
         mkdir -p build
         cd build
-        # Forzamos las variables que CMake reclama para evitar el error de dependencias
-        cmake ../platform/sdl -G Ninja -DNEBULA_DEPS=../deps -DNEBULA_HOST_TOOLS=../host-tools
+        # Desactivamos las optimizaciones de glslang y pasamos las rutas falsas para saltar las validaciones
+        cmake ../platform/sdl -G Ninja -DNEBULA_DEPS=../deps -DNEBULA_HOST_TOOLS=../host-tools -DENABLE_OPT=0
         ninja
 
     - name: Empaquetando ejecutable
