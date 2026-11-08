@@ -18,28 +18,15 @@ jobs:
     - name: Instalando herramientas en la nube
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
+        sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev libarchive-dev
 
-    - name: Clonar dependencias y parchear libarchive de forma agresiva
+    - name: Clonar dependencias y neutralizar archive_deps conflictivo
       run: |
         mkdir -p deps host-tools
         git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
 
-        # Parche avanzado con Python para limpiar cualquier rastro de /pkgconfig en los scripts de CMake
-        python3 -c "
-        import glob
-        for filepath in glob.glob('**/*.cmake', recursive=True):
-            try:
-                with open(filepath, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                if '/pkgconfig' in content:
-                    new_content = content.replace('/pkgconfig', 'lib/pkgconfig')
-                    with open(filepath, 'w', encoding='utf-8') as f:
-                        f.write(new_content)
-                    print(f'Parcheado con éxito: {filepath}')
-            except Exception as e:
-                pass
-        "
+        # Solución radical: vaciamos el archivo de dependencias de libarchive para que CMake no intente compilarlo de forma rota
+        echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
     - name: Compilando binario
       run: |
