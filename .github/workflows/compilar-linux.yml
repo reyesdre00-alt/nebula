@@ -20,22 +20,25 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
 
-    - name: Clonar dependencias y parchear archivo de libarchive
+    - name: Clonar dependencias y parchear libarchive de forma agresiva
       run: |
         mkdir -p deps host-tools
         git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
 
-        # Solución radical: reemplazamos la línea conflictiva de pkgconfig directamente en el archivo
+        # Parche avanzado con Python para limpiar cualquier rastro de /pkgconfig en los scripts de CMake
         python3 -c "
-        path = 'cmake/archive_deps.cmake'
-        with open(path, 'r') as f:
-            content = f.read()
-        # Reemplazamos cualquier destino que apunte a la raíz por una ruta local dentro de build
-        new_content = content.replace('DESTINATION /pkgconfig', 'DESTINATION lib/pkgconfig')
-        new_content = new_content.replace('DESTINATION pkgconfig', 'DESTINATION lib/pkgconfig')
-        with open(path, 'w') as f:
-            f.write(new_content)
-        print('Archivo archive_deps.cmake parcheado exitosamente.')
+        import glob
+        for filepath in glob.glob('**/*.cmake', recursive=True):
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                if '/pkgconfig' in content:
+                    new_content = content.replace('/pkgconfig', 'lib/pkgconfig')
+                    with open(filepath, 'w', encoding='utf-8') as f:
+                        f.write(new_content)
+                    print(f'Parcheado con éxito: {filepath}')
+            except Exception as e:
+                pass
         "
 
     - name: Compilando binario
