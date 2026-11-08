@@ -20,9 +20,9 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
 
-    - name: Descargar dependencias oficiales
+    - name: Descargar dependencias con el script
       run: |
-        pwsh platform/android/build_apk.ps1 -Deps
+        pwsh platform/android/build_apk.ps1 -Deps ./deps
 
     - name: Compilando binario
       run: |
