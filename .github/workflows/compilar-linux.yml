@@ -20,13 +20,23 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
 
-    - name: Clonar dependencias y parchear ruta de libarchive
+    - name: Clonar dependencias y parchear archivo de libarchive
       run: |
         mkdir -p deps host-tools
         git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
 
-        # Parche directo: corregimos la ruta absoluta /pkgconfig para que use la ruta local de instalación
-        find . -name "archive_deps.cmake" -exec sed -i 's|DESTINATION /pkgconfig|DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig|g' {} + || true
+        # Solución radical: reemplazamos la línea conflictiva de pkgconfig directamente en el archivo
+        python3 -c "
+        path = 'cmake/archive_deps.cmake'
+        with open(path, 'r') as f:
+            content = f.read()
+        # Reemplazamos cualquier destino que apunte a la raíz por una ruta local dentro de build
+        new_content = content.replace('DESTINATION /pkgconfig', 'DESTINATION lib/pkgconfig')
+        new_content = new_content.replace('DESTINATION pkgconfig', 'DESTINATION lib/pkgconfig')
+        with open(path, 'w') as f:
+            f.write(new_content)
+        print('Archivo archive_deps.cmake parcheado exitosamente.')
+        "
 
     - name: Compilando binario
       run: |
