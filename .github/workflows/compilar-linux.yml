@@ -36,11 +36,10 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Compilando binario
+    - name: Configurar CMake
       run: |
         mkdir -p build
         cd build
-        # Desactivamos extensiones exóticas de X11 que no son obligatorias para evitar bloqueos
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
@@ -48,7 +47,11 @@ jobs:
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
           -DCMAKE_INSTALL_PREFIX=$(pwd)/install
-        ninja
+
+    - name: Compilar con Ninja (Verbose para ver errores exactos)
+      run: |
+        cd build
+        ninja -v
 
     - name: Empaquetando ejecutable
       uses: actions/upload-artifact@v4
