@@ -20,15 +20,16 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
 
-    - name: Descargar dependencias con el script
+    - name: Configurar dependencias nativas
       run: |
-        pwsh platform/android/build_apk.ps1 -Deps ./deps
+        # Si el proyecto tiene una carpeta externa de dependencias, la preparamos aquí
+        mkdir -p deps
 
     - name: Compilando binario
       run: |
         mkdir -p build
         cd build
-        cmake ../platform/sdl -G Ninja -DNEBULA_DEPS=../deps
+        cmake ../platform/sdl -G Ninja
         ninja
 
     - name: Empaquetando ejecutable
