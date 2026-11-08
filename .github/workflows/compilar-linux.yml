@@ -36,7 +36,7 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake
+    - name: Configurar CMake con detalle de errores
       run: |
         mkdir -p build
         cd build
@@ -48,10 +48,10 @@ jobs:
           -DSDL_X11_XTEST=OFF \
           -DCMAKE_INSTALL_PREFIX=$(pwd)/install
 
-    - name: Compilar con Ninja (Verbose para ver errores exactos)
+    - name: Compilar con Ninja
       run: |
         cd build
-        ninja -v
+        ninja
 
     - name: Empaquetando ejecutable
       uses: actions/upload-artifact@v4
