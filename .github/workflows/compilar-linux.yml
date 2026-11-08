@@ -20,20 +20,21 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
 
-    - name: Clonar dependencias requeridas
+    - name: Clonar dependencias y parchear ruta de libarchive
       run: |
         mkdir -p deps host-tools
         git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
+
+        # Parche directo: corregimos la ruta absoluta /pkgconfig para que use la ruta local de instalación
+        find . -name "archive_deps.cmake" -exec sed -i 's|DESTINATION /pkgconfig|DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/pkgconfig|g' {} + || true
 
     - name: Compilando binario
       run: |
         mkdir -p build
         cd build
-        # Forzamos ENABLE_OPT=0 y ALLOW_EXTERNAL_SPIRV_TOOLS para glslang, y redirigimos la instalación general
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
-          -DENABLE_OPT=0 \
           -DALLOW_EXTERNAL_SPIRV_TOOLS=ON \
           -DCMAKE_INSTALL_PREFIX=$(pwd)/install
         ninja
