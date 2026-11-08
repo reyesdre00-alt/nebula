@@ -15,23 +15,24 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Instalando herramientas en la nube
+    - name: Instalando herramientas y librerías gráficas en la nube
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake git ninja-build libglew-dev libarchive-dev
+        sudo apt-get install -y \
+          build-essential cmake git ninja-build \
+          libglew-dev libarchive-dev \
+          libx11-dev libxext-dev libxrandr-dev libxinerama-dev \
+          libxcursor-dev libxi-dev libxxf86vm-dev libwayland-dev \
+          libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev
 
     - name: Clonar dependencias requeridas (Glslang y SDL3)
       run: |
         mkdir -p deps host-tools
-        
-        # 1. Clonar Glslang para los shaders
         git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
-        
-        # 2. Clonar SDL3 (versión 3.4.18 o rama release) requerida por el CMakeLists.txt
         git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git deps/SDL3-3.4.18 || \
         git clone --depth 1 https://github.com/libsdl-org/SDL.git deps/SDL3-3.4.18
 
-        # Neutralizamos el archive_deps conflictivo anterior
+        # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
     - name: Compilando binario
