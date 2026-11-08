@@ -20,16 +20,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
 
-    - name: Configurar dependencias nativas
-      run: |
-        # Si el proyecto tiene una carpeta externa de dependencias, la preparamos aquí
-        mkdir -p deps
-
-    - name: Compilando binario
+    - name: Compilando binario nativo
       run: |
         mkdir -p build
         cd build
-        cmake ../platform/sdl -G Ninja
+        cmake ../platform/sdl -G Ninja -DNEBULA_DEPS=.
         ninja
 
     - name: Empaquetando ejecutable
