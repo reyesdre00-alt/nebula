@@ -29,8 +29,12 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        # Desactivamos las optimizaciones de glslang y pasamos las rutas falsas para saltar las validaciones
-        cmake ../platform/sdl -G Ninja -DNEBULA_DEPS=../deps -DNEBULA_HOST_TOOLS=../host-tools -DENABLE_OPT=0
+        # Añadimos -DCMAKE_INSTALL_PREFIX=$(pwd)/install para evitar el error de escritura en /pkgconfig
+        cmake ../platform/sdl -G Ninja \
+          -DNEBULA_DEPS=../deps \
+          -DNEBULA_HOST_TOOLS=../host-tools \
+          -DENABLE_OPT=0 \
+          -DCMAKE_INSTALL_PREFIX=$(pwd)/install
         ninja
 
     - name: Empaquetando ejecutable
