@@ -20,15 +20,19 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
 
-    - name: Preparar carpeta de dependencias
+    - name: Preparar dependencias y herramientas host faltantes
       run: |
-        mkdir -p deps
+        # Creamos las carpetas de dependencias que exige el CMakeLists.txt raíz
+        mkdir -p deps/glslang-src host-tools
+        
+        # Clonamos una versión compatible de glslang para evitar el error de add_subdirectory
+        git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
 
-    - name: Compilando binario con NEBULA_DEPS
+    - name: Compilando binario
       run: |
         mkdir -p build
         cd build
-        cmake ../platform/sdl -G Ninja -DNEBULA_DEPS=../deps
+        cmake ../platform/sdl -G Ninja -DNEBULA_HOST_TOOLS=../host-tools
         ninja
 
     - name: Empaquetando ejecutable
