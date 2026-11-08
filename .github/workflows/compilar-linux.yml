@@ -36,18 +36,18 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake con registro extendido
+    - name: Configurar CMake
       run: |
         mkdir -p build
         cd build
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
-          -DALLOW_EXTERNAL_SPIRV_TOOLS=ON \
+          -DENABLE_OPT=OFF \
+          -DALLOW_EXTERNAL_SPIRV_TOOLS=OFF \
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
-          -DCMAKE_INSTALL_PREFIX=$(pwd)/install \
-          --log-level=NOTICE
+          -DCMAKE_INSTALL_PREFIX=$(pwd)/install
 
     - name: Compilar con Ninja
       run: |
