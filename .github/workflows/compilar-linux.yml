@@ -1,1 +1,34 @@
+name: Compilar Nebula para Linux
 
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Obteniendo código
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Instalando herramientas en la nube
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake git ninja-build libsdl2-dev libglew-dev
+
+    - name: Compilando binario
+      run: |
+        mkdir -p build
+        cd build
+        cmake .. -G Ninja
+        ninja
+
+    - name: Empaquetando ejecutable
+      uses: actions/upload-artifact@v4
+      with:
+        name: nebula-linux-x86_64
+        path: build/
