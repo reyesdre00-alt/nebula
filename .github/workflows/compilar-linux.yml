@@ -29,7 +29,7 @@ jobs:
       run: |
         mkdir -p build
         cd build
-        # Configuramos CMake desactivando el optimizador de glslang y aislando la ruta de instalación
+        # Desactivamos el optimizador de glslang y aislamos la ruta de instalación en una carpeta local
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
