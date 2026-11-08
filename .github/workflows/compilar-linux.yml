@@ -36,7 +36,7 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake con detalle de errores
+    - name: Configurar CMake con registro extendido
       run: |
         mkdir -p build
         cd build
@@ -46,7 +46,8 @@ jobs:
           -DALLOW_EXTERNAL_SPIRV_TOOLS=ON \
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
-          -DCMAKE_INSTALL_PREFIX=$(pwd)/install
+          -DCMAKE_INSTALL_PREFIX=$(pwd)/install \
+          --log-level=NOTICE
 
     - name: Compilar con Ninja
       run: |
