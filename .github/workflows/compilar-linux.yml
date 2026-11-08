@@ -36,7 +36,7 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake
+    - name: Configurar CMake con volcado completo
       run: |
         mkdir -p build
         cd build
