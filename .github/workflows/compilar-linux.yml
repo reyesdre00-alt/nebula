@@ -36,11 +36,10 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake con registro limpio de errores
+    - name: Configurar CMake con volcado total de errores de CMake
       run: |
         mkdir -p build
         cd build
-        # Ejecutamos con --log-level=STATUS y capturamos la salida si falla para ver el inicio del error
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
@@ -50,9 +49,13 @@ jobs:
           -DSDL_X11_XTEST=OFF \
           -DCMAKE_INSTALL_PREFIX=$(pwd)/install || {
             echo "========================================="
-            echo "BUSCANDO EL ERROR EN EL LOG DE CMAKE:"
+            echo "IMPRIMIENDO CMakeError.log SI EXISTE:"
             echo "========================================="
-            grep -B 5 -A 10 "CMake Error" CMakeFiles/CMakeOutput.log 2>/dev/null || true
+            cat CMakeFiles/CMakeError.log 2>/dev/null || echo "No se encontró CMakeError.log"
+            echo "========================================="
+            echo "IMPRIMIENDO ULTIMAS LINEAS DE CMakeCache.txt O CONFIG:"
+            echo "========================================="
+            tail -n 30 CMakeCache.txt 2>/dev/null || true
             exit 1
           }
 
