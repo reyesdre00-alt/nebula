@@ -36,12 +36,11 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake desde la raíz
+    - name: Configurar CMake para Linux desde platform/sdl
       run: |
         mkdir -p build
         cd build
-        # Apuntamos a la raíz del proyecto (..) en lugar de platform/sdl para que lea el script principal completo
-        cmake .. -G Ninja \
+        cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
           -DENABLE_OPT=0 \
