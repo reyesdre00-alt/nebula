@@ -36,7 +36,7 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake con registro detallado (VERBOSE)
+    - name: Configurar CMake con captura total de errores
       run: |
         mkdir -p build
         cd build
@@ -47,8 +47,13 @@ jobs:
           -DALLOW_EXTERNAL_SPIRV_TOOLS=OFF \
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
-          -DCMAKE_INSTALL_PREFIX=$(pwd)/install \
-          --log-level=VERBOSE
+          -DCMAKE_INSTALL_PREFIX=$(pwd)/install > cmake_full.log 2>&1 || {
+            echo "===================================================="
+            echo " ¡CMAKE FALLÓ! AQUÍ ESTÁ EL ERROR REAL:"
+            echo "===================================================="
+            grep -i -C 5 "error" cmake_full.log || cat cmake_full.log
+            exit 1
+          }
 
     - name: Compilar con Ninja
       run: |
