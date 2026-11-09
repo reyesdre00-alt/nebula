@@ -19,33 +19,37 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          build-essential cmake git ninja-build \
+          build-essential cmake git ninja-build python3 \
           libglew-dev libarchive-dev \
           libx11-dev libxext-dev libxrandr-dev libxinerama-dev \
           libxcursor-dev libxi-dev libxxf86vm-dev libwayland-dev \
           libxkbcommon-dev libegl1-mesa-dev libgl1-mesa-dev \
           libxss-dev libxtst-dev
 
-    - name: Clonar dependencias requeridas (Glslang y SDL3)
+    - name: Clonar dependencias requeridas (Glslang, SPIRV-Tools y SDL3)
       run: |
         mkdir -p deps host-tools
         git clone --depth 1 https://github.com/KhronosGroup/Glslang.git deps/glslang-src
+        
+        # Clonamos SPIRV-Tools dentro de glslang para que ENABLE_OPT no falle
+        mkdir -p deps/glslang-src/External
+        git clone --depth 1 https://github.com/KhronosGroup/SPIRV-Tools.git deps/glslang-src/External/spirv-tools
+        git clone --depth 1 https://github.com/KhronosGroup/SPIRV-Headers.git deps/glslang-src/External/spirv-tools/external/spirv-headers || true
+
         git clone --depth 1 --branch release-3.4.18 https://github.com/libsdl-org/SDL.git deps/SDL3-3.4.18 || \
         git clone --depth 1 https://github.com/libsdl-org/SDL.git deps/SDL3-3.4.18
 
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake con bypass total de optimización en glslang
+    - name: Configurar CMake con SPIRV-Tools integrado
       run: |
         mkdir -p build
         cd build
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
-          -DENABLE_OPT=0 \
-          -Dglslang_ENABLE_INSTALL=OFF \
-          -DALLOW_EXTERNAL_SPIRV_TOOLS=OFF \
+          -DENABLE_OPT=ON \
           -DSPIRV_SKIP_EXECUTABLES=ON \
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
