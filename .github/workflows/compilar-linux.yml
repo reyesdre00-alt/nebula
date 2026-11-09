@@ -36,28 +36,19 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake con volcado total de errores de CMake
+    - name: Configurar CMake desde la raíz
       run: |
         mkdir -p build
         cd build
-        cmake ../platform/sdl -G Ninja \
+        # Apuntamos a la raíz del proyecto (..) en lugar de platform/sdl para que lea el script principal completo
+        cmake .. -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
           -DENABLE_OPT=0 \
           -DALLOW_EXTERNAL_SPIRV_TOOLS=OFF \
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
-          -DCMAKE_INSTALL_PREFIX=$(pwd)/install || {
-            echo "========================================="
-            echo "IMPRIMIENDO CMakeError.log SI EXISTE:"
-            echo "========================================="
-            cat CMakeFiles/CMakeError.log 2>/dev/null || echo "No se encontró CMakeError.log"
-            echo "========================================="
-            echo "IMPRIMIENDO ULTIMAS LINEAS DE CMakeCache.txt O CONFIG:"
-            echo "========================================="
-            tail -n 30 CMakeCache.txt 2>/dev/null || true
-            exit 1
-          }
+          -DCMAKE_INSTALL_PREFIX=$(pwd)/install
 
     - name: Compilar con Ninja
       run: |
