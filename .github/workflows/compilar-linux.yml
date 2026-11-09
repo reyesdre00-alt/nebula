@@ -36,7 +36,7 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake con captura total de errores
+    - name: Configurar CMake con bypass total de optimización en glslang
       run: |
         mkdir -p build
         cd build
@@ -44,7 +44,9 @@ jobs:
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
           -DENABLE_OPT=0 \
+          -Dglslang_ENABLE_INSTALL=OFF \
           -DALLOW_EXTERNAL_SPIRV_TOOLS=OFF \
+          -DSPIRV_SKIP_EXECUTABLES=ON \
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
           -DCMAKE_INSTALL_PREFIX=$(pwd)/install > cmake_full.log 2>&1 || {
