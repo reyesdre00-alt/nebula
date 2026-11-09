@@ -36,10 +36,11 @@ jobs:
         # Neutralizamos el archive_deps conflictivo
         echo "# Desactivado para Linux" > cmake/archive_deps.cmake
 
-    - name: Configurar CMake
+    - name: Configurar CMake con registro limpio de errores
       run: |
         mkdir -p build
         cd build
+        # Ejecutamos con --log-level=STATUS y capturamos la salida si falla para ver el inicio del error
         cmake ../platform/sdl -G Ninja \
           -DNEBULA_DEPS=../deps \
           -DNEBULA_HOST_TOOLS=../host-tools \
@@ -47,7 +48,13 @@ jobs:
           -DALLOW_EXTERNAL_SPIRV_TOOLS=OFF \
           -DSDL_X11_XSCRNSAVER=OFF \
           -DSDL_X11_XTEST=OFF \
-          -DCMAKE_INSTALL_PREFIX=$(pwd)/install || { echo "=== MENSAJE DE ERROR ANTERIOR A CMAKE ==="; exit 1; }
+          -DCMAKE_INSTALL_PREFIX=$(pwd)/install || {
+            echo "========================================="
+            echo "BUSCANDO EL ERROR EN EL LOG DE CMAKE:"
+            echo "========================================="
+            grep -B 5 -A 10 "CMake Error" CMakeFiles/CMakeOutput.log 2>/dev/null || true
+            exit 1
+          }
 
     - name: Compilar con Ninja
       run: |
